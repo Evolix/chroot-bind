@@ -34,6 +34,12 @@ fi
 mkdir -p /var/run/bind/run
 chown -R root:bind  /var/run/bind/
 chmod -R  g+rwX /var/run/bind/
+
+if [ -d "/var/chroot-bind/var/run/bind/run/named" ]; then
+    rmdir /var/chroot-bind/var/run/bind/run/named
+    rm /var/run/bind/run/named.pid
+fi
+
 if [ ! -h "/var/run/bind/run/named.pid" ]; then
     ln -s /var/chroot-bind/var/run/bind/run/named.pid /var/run/bind/run/named.pid
 fi
