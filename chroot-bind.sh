@@ -10,6 +10,9 @@
 # When the script is finished, ensure you have
 # 'OPTIONS="-u bind -t /var/chroot-bind"' in /etc/default/bind9
 # and /etc/init.d/bind9 (re)start
+# ...and re-exec the script to have a named.pid link
+# outside the chroot and the right result
+# for "/etc/init.d/bind9 status"
 
 # essential dirs
 mkdir -p /var/chroot-bind
@@ -40,7 +43,13 @@ if [ -d "/var/chroot-bind/var/run/bind/run/named" ]; then
     rm /var/run/bind/run/named.pid
 fi
 
+if [ -f "/var/run/bind/run/named.pid" ]; then
+    cat /var/run/bind/run/named.pid > /var/chroot-bind/var/run/bind/run/named.pid
+    rm -f /var/run/bind/run/named.pid 
+fi
+
 if [ ! -h "/var/run/bind/run/named.pid" ]; then
+    rm -f /var/run/bind/run/named.pid 
     ln -s /var/chroot-bind/var/run/bind/run/named.pid /var/run/bind/run/named.pid
 fi
 
