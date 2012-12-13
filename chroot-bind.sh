@@ -3,7 +3,7 @@
 # Gregory Colpart <reg@evolix.fr>
 # chroot (or re-chroot) script for bind9
 
-# tested on Debian Sarge and Etch and Lenny
+# tested on Debian from Sarge to Wheezy.
 # Exec this script after `(apt-get|aptitude) install bind9`
 # and after *each* bind9 upgrade
 
@@ -62,8 +62,10 @@ fi
 #chmod 666 /var/chroot-bind/dev/{null,random}
 
 # essential libs
-for i in `ldd $(which named) | cut -d">" -f2 | cut -d"(" -f1`; do install \
-        -D $i /var/chroot-bind/${i##/}; done
+for i in `ldd $(which named) | cut -d">" -f2 | cut -d"(" -f1` \
+         /usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libgost.so; do
+    install -D $i /var/chroot-bind/${i##/}
+done
 
 # essential (hum, bash is required ??)
 #cp /bin/bash /var/chroot-bind/bin/
