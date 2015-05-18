@@ -9,10 +9,10 @@
 
 # When the script is finished, ensure you have
 # 'OPTIONS="-u bind -t /var/chroot-bind"' in /etc/default/bind9
-# for Jessie, cp -a /lib/systemd/system/bind9.service /etc/systemd/system/
+# for Jessie/systemd, cp -a /lib/systemd/system/bind9.service /etc/systemd/system/
 # and modify section [Service] to have :
 # EnvironmentFile=-/etc/default/bind9
-# ExecStart=/usr/sbin/named $OPTIONS
+# ExecStart=/usr/sbin/named -f $OPTIONS
 # and /etc/init.d/bind9 (re)start
 # ...and re-exec the script to have a named.pid link
 # outside the chroot and the right result
