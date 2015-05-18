@@ -9,6 +9,10 @@
 
 # When the script is finished, ensure you have
 # 'OPTIONS="-u bind -t /var/chroot-bind"' in /etc/default/bind9
+# for Jessie, cp -a /lib/systemd/system/bind9.service /etc/systemd/system/
+# and modify section [Service] to have :
+# EnvironmentFile=-/etc/default/bind9
+# ExecStart=/usr/sbin/named $OPTIONS
 # and /etc/init.d/bind9 (re)start
 # ...and re-exec the script to have a named.pid link
 # outside the chroot and the right result
@@ -62,7 +66,7 @@ fi
 #chmod 666 /var/chroot-bind/dev/{null,random}
 
 # essential libs
-for i in `ldd $(which named) | cut -d">" -f2 | cut -d"(" -f1` \
+for i in `ldd $(which named) | grep -v linux-vdso.so.1 | cut -d">" -f2 | cut -d"(" -f1` \
          /usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libgost.so; do
     install -D $i /var/chroot-bind/${i##/}
 done
