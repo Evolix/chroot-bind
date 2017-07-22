@@ -22,7 +22,8 @@ mkdir -p /var/chroot-bind
 mkdir -p /var/chroot-bind/bin /var/chroot-bind/dev /var/chroot-bind/etc \
         /var/chroot-bind/lib /var/chroot-bind/usr/lib                   \
         /var/chroot-bind/usr/sbin /var/chroot-bind/var/cache/bind       \
-        /var/chroot-bind/var/log /var/chroot-bind/var/run/bind/run/
+        /var/chroot-bind/var/log /var/chroot-bind/var/run/named/        \
+        /var/chroot-bind/run/named/
 
 # for conf
 if [ ! -h "/etc/bind" ]; then
@@ -37,23 +38,9 @@ if [ ! -h "/var/log/bind.log" ]; then
 fi
 
 # for pid
-mkdir -p /var/run/bind/run
-chown -R root:bind  /var/run/bind/
-chmod -R g+rwX /var/run/bind/
-
-if [ -d "/var/chroot-bind/var/run/bind/run/named" ]; then
-    rmdir /var/chroot-bind/var/run/bind/run/named
-    rm /var/run/bind/run/named.pid
-fi
-
-if [ -f "/var/run/bind/run/named.pid" ]; then
-    cat /var/run/bind/run/named.pid > /var/chroot-bind/var/run/bind/run/named.pid
-    rm -f /var/run/bind/run/named.pid 
-fi
-
-if [ ! -h "/var/run/bind/run/named.pid" ]; then
-    rm -f /var/run/bind/run/named.pid 
-    ln -s /var/chroot-bind/var/run/bind/run/named.pid /var/run/bind/run/named.pid
+if [ -f "/var/run/named/named.pid" ]; then
+    cat /var/run/named/named.pid > /var/chroot-bind/var/run/named/named.pid
+    rm -f /var/run/named/named.pid
 fi
 
 if [ ! -e "/var/chroot-bind/dev/random" ]; then
