@@ -1,22 +1,21 @@
 #!/bin/sh
 
-# Gregory Colpart <reg@evolix.fr>
+# Gregory Colpart <reg@debian.org>
 # chroot (or re-chroot) script for bind9
 
-# tested on Debian from Sarge to Wheezy.
-# Exec this script after `(apt-get|aptitude) install bind9`
+# tested on Debian Wheezy/Jessie/Stretch
+# Exec this script after `(apt-get|aptitude|apt) install bind9`
 # and after *each* bind9 upgrade
 
 # When the script is finished, ensure you have
 # 'OPTIONS="-u bind -t /var/chroot-bind"' in /etc/default/bind9
-# for Jessie/systemd, cp -a /lib/systemd/system/bind9.service /etc/systemd/system/
+# and /etc/init.d/bind9 (re)start
+#
+# for Jessie/systemd only:
+# cp -a /lib/systemd/system/bind9.service /etc/systemd/system/
 # and modify section [Service] to have :
 # EnvironmentFile=-/etc/default/bind9
 # ExecStart=/usr/sbin/named -f $OPTIONS
-# and /etc/init.d/bind9 (re)start
-# ...and re-exec the script to have a named.pid link
-# outside the chroot and the right result
-# for "/etc/init.d/bind9 status"
 
 # essential dirs
 mkdir -p /var/chroot-bind
@@ -40,7 +39,7 @@ fi
 # for pid
 mkdir -p /var/run/bind/run
 chown -R root:bind  /var/run/bind/
-chmod -R  g+rwX /var/run/bind/
+chmod -R g+rwX /var/run/bind/
 
 if [ -d "/var/chroot-bind/var/run/bind/run/named" ]; then
     rmdir /var/chroot-bind/var/run/bind/run/named
@@ -58,16 +57,22 @@ if [ ! -h "/var/run/bind/run/named.pid" ]; then
 fi
 
 if [ ! -e "/var/chroot-bind/dev/random" ]; then
-    mknod /var/chroot-bind/dev/random c 1 3
+    mknod /var/chroot-bind/dev/random c 1 8
     chmod 666 /var/chroot-bind/dev/random
 fi
+
+if [ ! -e "/var/chroot-bind/dev/urandom" ]; then
+    mknod /var/chroot-bind/dev/urandom c 1 9
+    chmod 666 /var/chroot-bind/dev/urandom
+fi
+
 # essential dev (hum, null is required ??)
 #mknod /var/chroot-bind/dev/null c 1 3
 #chmod 666 /var/chroot-bind/dev/{null,random}
 
 # essential libs
 for i in `ldd $(which named) | grep -v linux-vdso.so.1 | cut -d">" -f2 | cut -d"(" -f1` \
-         /usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libgost.so; do
+         /usr/lib/x86_64-linux-gnu/openssl-1.0.*/engines/libgost.so ; do
     install -D $i /var/chroot-bind/${i##/}
 done
 
